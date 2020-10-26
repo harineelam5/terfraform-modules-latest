@@ -3,6 +3,8 @@ pipeline {
     parameters {
         string(name: 'Project', defaultValue: 'Demo Project', description: 'Project to Deploy')
         choice(name: 'Environment', choices: ['UAT', 'STAGE'], description: 'Select Workspace Environment')
+        booleanParam (name : 'RUN_PLAN_ONLY', defaultValue: true, description: 'Use Checkbox checked to Run Terraform Plan Only. Uncheck Checkbox to Run Terraform Plan with Apply/Destroy Stage.')
+        choice(name: 'TERRAFORM_ACTION', choices: ['apply' , 'destroy'],  description: 'Do You Want to Apply or Destroy?')
         string(name: 'Branch', defaultValue: 'master', description: 'Enter Branch Name to Run')
     }
     stages {
@@ -38,9 +40,20 @@ pipeline {
             }
 		   }
         }
-        stage('Terraform Apply') { 
+        stage('Terraform Apply') {
+            when {
+                expression { params.TERRAFORM_ACTION == 'apply' && params.RUN_PLAN_ONLY == false}
+            }
             steps {
-             sh 'terraform apply -auto-approve "${Environment}"tfplanout'
+              sh 'terraform apply -auto-approve "${Environment}"tfplanout'
+            }    
+        }
+        stage('Terraform Destroy') {
+            when {
+                expression { params.TERRAFORM_ACTION == 'destroy' && params.RUN_PLAN_ONLY == false}
+            }
+            steps {
+              sh 'terraform destroy -auto-approve -var-file="./${Environment}.tfvars"'
             }    
         }
     }    
