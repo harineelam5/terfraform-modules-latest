@@ -13,7 +13,7 @@ pipeline {
     }
     stage('Apply terraform') {
       steps {
-        sh 'terraform apply'
+        sh 'terraform apply --var-file=UAT.tfvars'
       }   
     }  
 }
