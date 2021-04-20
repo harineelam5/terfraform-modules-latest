@@ -32,7 +32,7 @@ pipeline {
         }    
         stage('Terraform Plan'){ 
            steps {
-              sh 'terraform plan -var-file="./${Environment}.tfvars" -out=${Environment}tfplanout'
+              sh 'terraform plan -var-file="./${Environment}.tfvars" -out=${Environment}.json'
             //   script {
             //   timeout(time: 10, unit: 'MINUTES') {
             //     input(id: "Terraform Apply Gate", message: "Terraform Plan ${params.Environment}tfplanout?", ok: 'Apply')
@@ -45,7 +45,7 @@ pipeline {
                 expression { params.TERRAFORM_ACTION == 'apply' && params.RUN_PLAN_ONLY == false}
             }
             steps {
-              sh 'terraform apply -auto-approve "${Environment}"tfplanout'
+              sh 'terraform apply -auto-approve "${Environment}.json"'
             }    
         }
         stage('Terraform Destroy') {
